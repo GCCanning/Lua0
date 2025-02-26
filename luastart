@@ -1,5 +1,5 @@
 -- CC: Tweaks Advanced Computer Interface
--- Features: Login Screen, Objectives List, Redstone Control, Power Monitoring
+-- Features: Login Screen, Objectives List, Redstone Control, Power Monitoring, Background Music
 
 local username = "TheNameOfTheVoid"
 local objectives = {"Build storage room", "Expand farm", "Automate smelter"}
@@ -7,6 +7,7 @@ local redstoneControls = {"Door", "Lights", "Alarm"}
 local sides = {"left", "right", "back"} -- Redstone output sides
 local monitor = peripheral.find("monitor") -- Auto-detect the first monitor
 local powerPeripheral = peripheral.find("energy_storage") -- Adjust based on mod used
+local speaker = peripheral.find("speaker") -- Auto-detect speaker for background music
 
 -- Ensure output is redirected to the monitor
 if monitor then
@@ -63,6 +64,13 @@ function animateBlackHole()
     end
 end
 
+-- Play background music
+function playMusic()
+    if speaker then
+        speaker.playSound("minecraft:music_disc.pigstep", 3)
+    end
+end
+
 -- Touch event handler
 function waitForTouch()
     while true do
@@ -73,6 +81,7 @@ end
 
 -- Login Screen
 function loginScreen()
+    playMusic()
     animateBlackHole()
     clearScreen()
     drawRunicBorder()
@@ -96,48 +105,6 @@ function mainMenu()
     elseif y == 8 then controlPanel() 
     elseif y == 10 then powerStatus() 
     else mainMenu() end
-end
-
--- Objectives Screen with seamless text input
-function objectivesScreen()
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("== Current Objectives ==", 3, colors.purple)
-    for i, obj in ipairs(objectives) do drawCenteredText(i .. ") " .. obj, 5 + i, colors.white) end
-    drawCenteredText("Click objective to remove, or click below to add", 10 + #objectives, colors.yellow)
-    drawCenteredText("Add New Objective", 12 + #objectives, colors.green)
-    drawCenteredText("Back", 14 + #objectives, colors.red)
-    
-    local x, y = waitForTouch()
-    if y >= 5 and y < 5 + #objectives then
-        table.remove(objectives, y - 4)
-        objectivesScreen()
-    elseif y == 12 + #objectives then
-        local newObjective = ""
-        while true do
-            clearScreen()
-            drawRunicBorder()
-            drawCenteredText("Enter New Objective:", 3, colors.purple)
-            drawCenteredText(newObjective .. "_", 5, colors.white)
-            drawCenteredText("[Enter] to confirm, [Backspace] to delete", 7, colors.gray)
-            drawCenteredText("Back", 9, colors.red)
-            
-            local event, char = os.pullEvent("char")
-            if event == "char" then
-                newObjective = newObjective .. char
-            elseif event == "key" then
-                if char == keys.enter then
-                    table.insert(objectives, newObjective)
-                    break
-                elseif char == keys.backspace then
-                    newObjective = newObjective:sub(1, -2)
-                end
-            end
-        end
-        objectivesScreen()
-    else
-        mainMenu()
-    end
 end
 
 -- Start program
