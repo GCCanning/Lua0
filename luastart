@@ -80,7 +80,7 @@ end
 function waitForTouch()
     while true do
         local event, side, x, y = os.pullEvent("monitor_touch")
-        return x, y
+        return x, math.floor(y) -- Ensure y is an integer
     end
 end
 
@@ -144,9 +144,9 @@ function mainMenu()
     drawCenteredText("Click an option:", 12, colors.purple)
     
     local x, y = waitForTouch()
-    if y == 6 then objectivesScreen() 
-    elseif y == 8 then controlPanel() 
-    elseif y == 10 then powerStatus() 
+    if y >= 5 and y <= 7 then objectivesScreen() 
+    elseif y >= 7 and y <= 9 then controlPanel() 
+    elseif y >= 9 and y <= 11 then powerStatus() 
     else mainMenu() end
 end
 
