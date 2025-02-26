@@ -29,34 +29,39 @@ function clearScreen()
 end
 
 function drawHeaderWithBackButton(title)
-    monitor.setCursorPos(2, 3)
-    monitor.setTextColor(colors.red)
-    monitor.write("⬅ Back")
+    term.setCursorPos(2, 3)
+    term.setTextColor(colors.red)
+    term.write("⬅ Back")
     drawCenteredText(title, 3, colors.purple)
 end
 
 function drawCenteredText(text, y, color)
-    local w, h = monitor.getSize()
-    monitor.setTextColor(color)
-    monitor.setCursorPos(math.floor((w - #text) / 2), y)
-    monitor.write(text)
+    local w, h = term.getSize()
+    term.setTextColor(color)
+    term.setCursorPos(math.floor((w - #text) / 2), y)
+    term.write(text)
 end
 
 function drawRunicBorder()
-    local w, h = monitor.getSize()
+    local w, h = term.getSize()
     local rune = "✦"
     for x = 1, w do
-        monitor.setCursorPos(x, 1)
-        monitor.write(rune)
-        monitor.setCursorPos(x, h)
-        monitor.write(rune)
+        term.setCursorPos(x, 1)
+        term.write(rune)
+        term.setCursorPos(x, h)
+        term.write(rune)
     end
     for y = 1, h do
-        monitor.setCursorPos(1, y)
-        monitor.write(rune)
-        monitor.setCursorPos(w, y)
-        monitor.write(rune)
+        term.setCursorPos(1, y)
+        term.write(rune)
+        term.setCursorPos(w, y)
+        term.write(rune)
     end
+end
+
+function waitForTouch()
+    local event, side, x, y = os.pullEvent("monitor_touch")
+    return x, y
 end
 
 -- Objectives Screen
@@ -65,7 +70,7 @@ function objectivesScreen()
     drawRunicBorder()
     drawHeaderWithBackButton("== Current Objectives ==")
     
-    local h = monitor.getSize()
+    local h = term.getSize()
     local maxDisplay = h - 8 -- Allow room for the border
     for i = scrollIndex, math.min(scrollIndex + maxDisplay, #objectives) do
         drawCenteredText(i .. ") " .. objectives[i], 5 + (i - scrollIndex) * 2, colors.white)
