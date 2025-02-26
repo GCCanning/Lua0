@@ -5,7 +5,7 @@ local username = "TheNameOfTheVoid"
 local objectives = {"Build storage room", "Expand farm", "Automate smelter"}
 local redstoneControls = {"Door", "Lights", "Alarm"}
 local sides = {"left", "right", "back"} -- Redstone output sides
-local monitor = peripheral.find("monitor")
+local monitor = peripheral.wrap("right") -- Adjusted for large display
 local powerPeripheral = peripheral.find("energy_storage") -- Adjust based on mod used
 
 -- Utility functions
@@ -23,12 +23,31 @@ function drawCenteredText(text, y, color)
     term.write(text)
 end
 
+function drawRunicBorder()
+    local w, h = term.getSize()
+    local rune = "✦"
+    for x = 1, w do
+        term.setCursorPos(x, 1)
+        term.write(rune)
+        term.setCursorPos(x, h)
+        term.write(rune)
+    end
+    for y = 1, h do
+        term.setCursorPos(1, y)
+        term.write(rune)
+        term.setCursorPos(w, y)
+        term.write(rune)
+    end
+end
+
 function animateBlackHole()
     for i = 1, 5 do
         clearScreen()
+        drawRunicBorder()
         drawCenteredText("O", 6, colors.gray)
         sleep(0.1)
         clearScreen()
+        drawRunicBorder()
         drawCenteredText("0", 6, colors.purple)
         sleep(0.1)
     end
@@ -38,6 +57,7 @@ end
 function loginScreen()
     animateBlackHole()
     clearScreen()
+    drawRunicBorder()
     drawCenteredText("Welcome Home " .. username, 3, colors.purple)
     sleep(2)
     mainMenu()
@@ -46,11 +66,12 @@ end
 -- Main Menu
 function mainMenu()
     clearScreen()
-    term.setTextColor(colors.purple)
-    print("1) Current Objectives")
-    print("2) Control Panel")
-    print("3) Power Status")
-    print("Select an option:")
+    drawRunicBorder()
+    drawCenteredText("== Main Menu ==", 3, colors.purple)
+    drawCenteredText("1) Current Objectives", 6, colors.white)
+    drawCenteredText("2) Control Panel", 8, colors.white)
+    drawCenteredText("3) Power Status", 10, colors.white)
+    drawCenteredText("Select an option:", 12, colors.purple)
     local choice = read()
     if choice == "1" then objectivesScreen() 
     elseif choice == "2" then controlPanel() 
@@ -61,28 +82,36 @@ end
 -- Objectives Screen
 function objectivesScreen()
     clearScreen()
-    term.setTextColor(colors.purple)
-    print("== Current Objectives ==")
-    for i, obj in ipairs(objectives) do print(i .. ") " .. obj) end
-    print("Enter new objective or type 'back' to return:")
+    drawRunicBorder()
+    drawCenteredText("== Current Objectives ==", 3, colors.purple)
+    for i, obj in ipairs(objectives) do drawCenteredText(i .. ") " .. obj, 5 + i, colors.white) end
+    drawCenteredText("Enter new objective or 'back' to return:", 10, colors.purple)
     local input = read()
-    if input ~= "back" then table.insert(objectives, input) end
+    if input ~= "back" then 
+        table.insert(objectives, input)
+        drawCenteredText("Objective added: " .. input, 12, colors.green)
+        sleep(1.5)
+    end
     mainMenu()
 end
 
 -- Control Panel
 function controlPanel()
     clearScreen()
-    term.setTextColor(colors.purple)
-    print("== Control Panel ==")
+    drawRunicBorder()
+    drawCenteredText("== Control Panel ==", 3, colors.purple)
     for i, control in ipairs(redstoneControls) do
-        print(i .. ") " .. control .. " (Press to toggle)")
+        local status = redstone.getOutput(sides[i]) and "ON" or "OFF"
+        drawCenteredText(i .. ") " .. control .. " [" .. status .. "]", 5 + i, colors.white)
     end
-    print("Select a control or type 'back':")
+    drawCenteredText("Select a control or type 'back':", 10, colors.purple)
     local input = read()
     local index = tonumber(input)
     if index and redstoneControls[index] then
-        redstone.setOutput(sides[index], not redstone.getOutput(sides[index]))
+        local newState = not redstone.getOutput(sides[index])
+        redstone.setOutput(sides[index], newState)
+        drawCenteredText(redstoneControls[index] .. " toggled " .. (newState and "ON" or "OFF"), 12, colors.green)
+        sleep(1.5)
     end
     mainMenu()
 end
@@ -90,17 +119,17 @@ end
 -- Power Status
 function powerStatus()
     clearScreen()
-    term.setTextColor(colors.purple)
+    drawRunicBorder()
+    drawCenteredText("== Power Status ==", 3, colors.purple)
     if powerPeripheral then
-        print("Total Power: " .. powerPeripheral.getEnergyStored() .. " RF")
+        drawCenteredText("Total Power: " .. powerPeripheral.getEnergyStored() .. " RF", 6, colors.green)
     else
-        print("Power monitor not found.")
+        drawCenteredText("Power monitor not found.", 6, colors.red)
     end
-    print("Press any key to return.")
+    drawCenteredText("Press any key to return.", 10, colors.purple)
     os.pullEvent("key")
     mainMenu()
 end
 
 -- Start program
 loginScreen()
-
