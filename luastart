@@ -63,6 +63,14 @@ function animateBlackHole()
     end
 end
 
+-- Touch event handler
+function waitForTouch()
+    while true do
+        local event, side, x, y = os.pullEvent("monitor_touch")
+        return x, y
+    end
+end
+
 -- Login Screen
 function loginScreen()
     animateBlackHole()
@@ -81,11 +89,12 @@ function mainMenu()
     drawCenteredText("1) Current Objectives", 6, colors.white)
     drawCenteredText("2) Control Panel", 8, colors.white)
     drawCenteredText("3) Power Status", 10, colors.white)
-    drawCenteredText("Select an option:", 12, colors.purple)
-    local choice = read()
-    if choice == "1" then objectivesScreen() 
-    elseif choice == "2" then controlPanel() 
-    elseif choice == "3" then powerStatus() 
+    drawCenteredText("Click an option:", 12, colors.purple)
+    
+    local x, y = waitForTouch()
+    if y == 6 then objectivesScreen() 
+    elseif y == 8 then controlPanel() 
+    elseif y == 10 then powerStatus() 
     else mainMenu() end
 end
 
@@ -95,13 +104,9 @@ function objectivesScreen()
     drawRunicBorder()
     drawCenteredText("== Current Objectives ==", 3, colors.purple)
     for i, obj in ipairs(objectives) do drawCenteredText(i .. ") " .. obj, 5 + i, colors.white) end
-    drawCenteredText("Enter new objective or 'back' to return:", 10, colors.purple)
-    local input = read()
-    if input ~= "back" then 
-        table.insert(objectives, input)
-        drawCenteredText("Objective added: " .. input, 12, colors.green)
-        sleep(1.5)
-    end
+    drawCenteredText("Click to go back", 12, colors.red)
+    
+    waitForTouch()
     mainMenu()
 end
 
@@ -114,15 +119,9 @@ function controlPanel()
         local status = redstone.getOutput(sides[i]) and "ON" or "OFF"
         drawCenteredText(i .. ") " .. control .. " [" .. status .. "]", 5 + i, colors.white)
     end
-    drawCenteredText("Select a control or type 'back':", 10, colors.purple)
-    local input = read()
-    local index = tonumber(input)
-    if index and redstoneControls[index] then
-        local newState = not redstone.getOutput(sides[index])
-        redstone.setOutput(sides[index], newState)
-        drawCenteredText(redstoneControls[index] .. " toggled " .. (newState and "ON" or "OFF"), 12, colors.green)
-        sleep(1.5)
-    end
+    drawCenteredText("Click to go back", 12, colors.red)
+    
+    waitForTouch()
     mainMenu()
 end
 
@@ -136,8 +135,9 @@ function powerStatus()
     else
         drawCenteredText("Power monitor not found.", 6, colors.red)
     end
-    drawCenteredText("Press any key to return.", 10, colors.purple)
-    os.pullEvent("key")
+    drawCenteredText("Click to go back", 10, colors.red)
+    
+    waitForTouch()
     mainMenu()
 end
 
