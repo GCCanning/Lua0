@@ -1,5 +1,5 @@
 -- CC: Tweaks Advanced Computer Interface
--- Features: Login Screen, Objectives List, Redstone Control, Power Monitoring, Background Music
+-- Features: Login Screen, Objectives List (Editable), Redstone Control, Power Monitoring, Background Music
 
 local username = "TheNameOfTheVoid"
 local objectives = {"Build storage room", "Expand farm", "Automate smelter"}
@@ -102,13 +102,51 @@ function objectivesScreen()
     drawCenteredText("== Current Objectives ==", 3, colors.purple)
     
     for i, obj in ipairs(objectives) do
-        drawCenteredText(i .. ") " .. obj, 5 + i * 2, colors.white)
+        drawCenteredText(i .. ") " .. obj .. " (Click to Edit/Delete)", 5 + i * 2, colors.white)
     end
+    drawCenteredText("Click below to add a new objective", 5 + #objectives * 2 + 2, colors.purple)
+    drawCenteredText("Click here to return", 5 + #objectives * 2 + 4, colors.purple)
     
-    drawCenteredText("Click to return", 5 + #objectives * 2 + 2, colors.purple)
-    
-    waitForTouch()
-    mainMenu()
+    local x, y = waitForTouch()
+    if y >= 5 and y <= 5 + #objectives * 2 then
+        local index = math.floor((y - 5) / 2) + 1
+        editObjective(index)
+    elseif y >= 5 + #objectives * 2 + 2 and y <= 5 + #objectives * 2 + 3 then
+        addObjective()
+    else
+        mainMenu()
+    end
+end
+
+function editObjective(index)
+    clearScreen()
+    drawRunicBorder()
+    drawCenteredText("Editing Objective: " .. objectives[index], 3, colors.purple)
+    drawCenteredText("Type new text or type DELETE to remove", 5, colors.white)
+    term.setCursorPos(1, 7)
+    term.setTextColor(colors.white)
+    term.write(": ")
+    local input = read()
+    if input:lower() == "delete" then
+        table.remove(objectives, index)
+    elseif input ~= "" then
+        objectives[index] = input
+    end
+    objectivesScreen()
+end
+
+function addObjective()
+    clearScreen()
+    drawRunicBorder()
+    drawCenteredText("Enter a new objective:", 3, colors.purple)
+    term.setCursorPos(1, 5)
+    term.setTextColor(colors.white)
+    term.write(": ")
+    local input = read()
+    if input ~= "" then
+        table.insert(objectives, input)
+    end
+    objectivesScreen()
 end
 
 -- Control Panel Screen (Placeholder)
