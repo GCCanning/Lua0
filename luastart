@@ -5,7 +5,7 @@ local username = "TheNameOfTheVoid"
 local objectives = {"Build storage room", "Expand farm", "Automate smelter"}
 local redstoneControls = {"Door", "Lights", "Alarm"}
 local sides = {"left", "right", "back"} -- Redstone output sides
-local monitor = peripheral.wrap("right") -- Adjusted for large display
+local monitor = peripheral.find("monitor") -- Auto-detect the first monitor
 local powerPeripheral = peripheral.find("energy_storage") -- Adjust based on mod used
 
 -- Ensure output is redirected to the monitor
