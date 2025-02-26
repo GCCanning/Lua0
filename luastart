@@ -1,5 +1,5 @@
 -- CC: Tweaks Advanced Computer Interface
--- Features: Login Screen, Objectives List (Editable), Redstone Control, Power Monitoring, Background Music
+-- Features: Login Screen, Objectives List (Editable via Terminal), Redstone Control, Power Monitoring, Background Music
 
 local username = "TheNameOfTheVoid"
 local objectives = {"Build storage room", "Expand farm", "Automate smelter"}
@@ -92,6 +92,7 @@ function loginScreen()
     clearScreen()
     drawRunicBorder()
     drawCenteredText("Welcome Home " .. username, 3, colors.purple)
+    if speaker then speaker.speak("Welcome Home Void") end
     sleep(2)
     mainMenu()
 end
@@ -111,7 +112,7 @@ function objectivesScreen()
     drawCenteredText("⬆ Scroll Up ⬆", h - 6, colors.lightGray)
     drawCenteredText("⬇ Scroll Down ⬇", h - 4, colors.lightGray)
     drawCenteredText("Click to edit or add", h - 2, colors.purple)
-    drawCenteredText("⬅ Back", h, colors.red)
+    drawCenteredText("⬅ Back", h - 1, colors.red)
     
     local x, y = waitForTouch()
     if y >= 5 and y < h - 6 then
@@ -125,12 +126,15 @@ function objectivesScreen()
         objectivesScreen()
     elseif y == h - 2 then
         addObjective()
-    else
+    elseif y == h - 1 then
         mainMenu()
+    else
+        objectivesScreen()
     end
 end
 
 function editObjective(index)
+    term.redirect(term.native())
     term.setCursorPos(1, monitor.getSize() + 2)
     term.clearLine()
     term.write("Edit Objective: " .. objectives[index] .. " > ")
@@ -140,10 +144,12 @@ function editObjective(index)
     elseif input ~= "" then
         objectives[index] = input
     end
+    term.redirect(monitor)
     objectivesScreen()
 end
 
 function addObjective()
+    term.redirect(term.native())
     term.setCursorPos(1, monitor.getSize() + 2)
     term.clearLine()
     term.write("New Objective > ")
@@ -151,6 +157,7 @@ function addObjective()
     if input ~= "" then
         table.insert(objectives, input)
     end
+    term.redirect(monitor)
     objectivesScreen()
 end
 
