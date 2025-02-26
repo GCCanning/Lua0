@@ -67,7 +67,12 @@ end
 -- Play background music
 function playMusic()
     if speaker then
-        speaker.playSound("minecraft:music_disc.pigstep", 3)
+        sleep(0.5) -- Ensure the speaker is initialized
+        speaker.playSound("minecraft:music_disc.otherside", 3)
+        sleep(1)
+        speaker.playSound("minecraft:ambient.cave", 1)
+    else
+        print("No speaker detected!")
     end
 end
 
@@ -87,6 +92,44 @@ function loginScreen()
     drawRunicBorder()
     drawCenteredText("Welcome Home " .. username, 3, colors.purple)
     sleep(2)
+    mainMenu()
+end
+
+-- Objectives Screen
+function objectivesScreen()
+    clearScreen()
+    drawRunicBorder()
+    drawCenteredText("== Current Objectives ==", 3, colors.purple)
+    
+    for i, obj in ipairs(objectives) do
+        drawCenteredText(i .. ") " .. obj, 5 + i * 2, colors.white)
+    end
+    
+    drawCenteredText("Click to return", 5 + #objectives * 2 + 2, colors.purple)
+    
+    waitForTouch()
+    mainMenu()
+end
+
+-- Control Panel Screen (Placeholder)
+function controlPanel()
+    clearScreen()
+    drawRunicBorder()
+    drawCenteredText("== Control Panel ==", 3, colors.purple)
+    drawCenteredText("Feature coming soon!", 6, colors.white)
+    drawCenteredText("Click to return", 8, colors.purple)
+    waitForTouch()
+    mainMenu()
+end
+
+-- Power Status Screen (Placeholder)
+function powerStatus()
+    clearScreen()
+    drawRunicBorder()
+    drawCenteredText("== Power Status ==", 3, colors.purple)
+    drawCenteredText("Feature coming soon!", 6, colors.white)
+    drawCenteredText("Click to return", 8, colors.purple)
+    waitForTouch()
     mainMenu()
 end
 
