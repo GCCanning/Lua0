@@ -73,7 +73,7 @@ function objectivesScreen()
     
     drawCenteredText("⬆ Scroll Up ⬆", h - 6, colors.lightGray)
     drawCenteredText("⬇ Scroll Down ⬇", h - 4, colors.lightGray)
-    drawCenteredText("Click to edit or add", h - 2, colors.purple)
+    drawCenteredText("Click to edit, add, or delete", h - 2, colors.purple)
     
     local x, y = waitForTouch()
     if y == 3 and x <= 6 then
@@ -94,7 +94,7 @@ function objectivesScreen()
     end
 end
 
--- Edit and Add Objectives
+-- Edit and Add/Delete Objectives
 function editObjective(index)
     term.redirect(term.native())
     term.setCursorPos(1, select(2, term.getSize()))
@@ -102,7 +102,11 @@ function editObjective(index)
     term.write("Edit Objective: " .. objectives[index] .. " > ")
     local input = read()
     if input:lower() == "delete" then
-        table.remove(objectives, index)
+        print("Are you sure you want to delete this objective? (yes/no)")
+        local confirm = read()
+        if confirm:lower() == "yes" then
+            table.remove(objectives, index)
+        end
     elseif input ~= "" then
         objectives[index] = input
     end
