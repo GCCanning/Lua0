@@ -11,7 +11,7 @@ local powerPeripheral = peripheral.find("energy_storage") -- Adjust based on mod
 -- Ensure output is redirected to the monitor
 if monitor then
     term.redirect(monitor)
-    monitor.setTextScale(1) -- Adjust for better readability
+    monitor.setTextScale(1)
     monitor.setBackgroundColor(colors.black)
     monitor.clear()
 else
@@ -98,47 +98,46 @@ function mainMenu()
     else mainMenu() end
 end
 
--- Objectives Screen
+-- Objectives Screen with seamless text input
 function objectivesScreen()
     clearScreen()
     drawRunicBorder()
     drawCenteredText("== Current Objectives ==", 3, colors.purple)
     for i, obj in ipairs(objectives) do drawCenteredText(i .. ") " .. obj, 5 + i, colors.white) end
-    drawCenteredText("Click to go back", 12, colors.red)
+    drawCenteredText("Click objective to remove, or click below to add", 10 + #objectives, colors.yellow)
+    drawCenteredText("Add New Objective", 12 + #objectives, colors.green)
+    drawCenteredText("Back", 14 + #objectives, colors.red)
     
-    waitForTouch()
-    mainMenu()
-end
-
--- Control Panel
-function controlPanel()
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("== Control Panel ==", 3, colors.purple)
-    for i, control in ipairs(redstoneControls) do
-        local status = redstone.getOutput(sides[i]) and "ON" or "OFF"
-        drawCenteredText(i .. ") " .. control .. " [" .. status .. "]", 5 + i, colors.white)
-    end
-    drawCenteredText("Click to go back", 12, colors.red)
-    
-    waitForTouch()
-    mainMenu()
-end
-
--- Power Status
-function powerStatus()
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("== Power Status ==", 3, colors.purple)
-    if powerPeripheral then
-        drawCenteredText("Total Power: " .. powerPeripheral.getEnergyStored() .. " RF", 6, colors.green)
+    local x, y = waitForTouch()
+    if y >= 5 and y < 5 + #objectives then
+        table.remove(objectives, y - 4)
+        objectivesScreen()
+    elseif y == 12 + #objectives then
+        local newObjective = ""
+        while true do
+            clearScreen()
+            drawRunicBorder()
+            drawCenteredText("Enter New Objective:", 3, colors.purple)
+            drawCenteredText(newObjective .. "_", 5, colors.white)
+            drawCenteredText("[Enter] to confirm, [Backspace] to delete", 7, colors.gray)
+            drawCenteredText("Back", 9, colors.red)
+            
+            local event, char = os.pullEvent("char")
+            if event == "char" then
+                newObjective = newObjective .. char
+            elseif event == "key" then
+                if char == keys.enter then
+                    table.insert(objectives, newObjective)
+                    break
+                elseif char == keys.backspace then
+                    newObjective = newObjective:sub(1, -2)
+                end
+            end
+        end
+        objectivesScreen()
     else
-        drawCenteredText("Power monitor not found.", 6, colors.red)
+        mainMenu()
     end
-    drawCenteredText("Click to go back", 10, colors.red)
-    
-    waitForTouch()
-    mainMenu()
 end
 
 -- Start program
