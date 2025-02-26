@@ -105,7 +105,7 @@ function objectivesScreen()
         drawCenteredText(i .. ") " .. obj .. " (Click to Edit/Delete)", 5 + i * 2, colors.white)
     end
     drawCenteredText("Click below to add a new objective", 5 + #objectives * 2 + 2, colors.purple)
-    drawCenteredText("Click here to return", 5 + #objectives * 2 + 4, colors.purple)
+    drawCenteredText("Click here to return", 5 + #objectives * 2 + 6, colors.purple)
     
     local x, y = waitForTouch()
     if y >= 5 and y <= 5 + #objectives * 2 then
@@ -147,28 +147,6 @@ function addObjective()
         table.insert(objectives, input)
     end
     objectivesScreen()
-end
-
--- Control Panel Screen (Placeholder)
-function controlPanel()
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("== Control Panel ==", 3, colors.purple)
-    drawCenteredText("Feature coming soon!", 6, colors.white)
-    drawCenteredText("Click to return", 8, colors.purple)
-    waitForTouch()
-    mainMenu()
-end
-
--- Power Status Screen (Placeholder)
-function powerStatus()
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("== Power Status ==", 3, colors.purple)
-    drawCenteredText("Feature coming soon!", 6, colors.white)
-    drawCenteredText("Click to return", 8, colors.purple)
-    waitForTouch()
-    mainMenu()
 end
 
 -- Main Menu
