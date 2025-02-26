@@ -8,6 +8,16 @@ local sides = {"left", "right", "back"} -- Redstone output sides
 local monitor = peripheral.wrap("right") -- Adjusted for large display
 local powerPeripheral = peripheral.find("energy_storage") -- Adjust based on mod used
 
+-- Ensure output is redirected to the monitor
+if monitor then
+    term.redirect(monitor)
+    monitor.setTextScale(1) -- Adjust for better readability
+    monitor.setBackgroundColor(colors.black)
+    monitor.clear()
+else
+    print("Monitor not found! Displaying on terminal instead.")
+end
+
 -- Utility functions
 function clearScreen()
     term.setBackgroundColor(colors.black)
@@ -17,26 +27,26 @@ function clearScreen()
 end
 
 function drawCenteredText(text, y, color)
-    local w, h = term.getSize()
-    term.setTextColor(color)
-    term.setCursorPos(math.floor((w - #text) / 2), y)
-    term.write(text)
+    local w, h = monitor.getSize()
+    monitor.setTextColor(color)
+    monitor.setCursorPos(math.floor((w - #text) / 2), y)
+    monitor.write(text)
 end
 
 function drawRunicBorder()
-    local w, h = term.getSize()
+    local w, h = monitor.getSize()
     local rune = "✦"
     for x = 1, w do
-        term.setCursorPos(x, 1)
-        term.write(rune)
-        term.setCursorPos(x, h)
-        term.write(rune)
+        monitor.setCursorPos(x, 1)
+        monitor.write(rune)
+        monitor.setCursorPos(x, h)
+        monitor.write(rune)
     end
     for y = 1, h do
-        term.setCursorPos(1, y)
-        term.write(rune)
-        term.setCursorPos(w, y)
-        term.write(rune)
+        monitor.setCursorPos(1, y)
+        monitor.write(rune)
+        monitor.setCursorPos(w, y)
+        monitor.write(rune)
     end
 end
 
