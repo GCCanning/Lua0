@@ -8,11 +8,12 @@ local sides = {"left", "right", "back"} -- Redstone output sides
 local monitor = peripheral.find("monitor") -- Auto-detect the first monitor
 local powerPeripheral = peripheral.find("energy_storage") -- Adjust based on mod used
 local speaker = peripheral.find("speaker") -- Auto-detect speaker for background music
+local scrollIndex = 1
 
 -- Ensure output is redirected to the monitor
 if monitor then
     term.redirect(monitor)
-    monitor.setTextScale(1)
+    monitor.setTextScale(0.5)
     monitor.setBackgroundColor(colors.black)
     monitor.clear()
 else
@@ -67,7 +68,7 @@ end
 -- Play background music
 function playMusic()
     if speaker then
-        sleep(0.5) -- Ensure the speaker is initialized
+        sleep(0.5)
         speaker.playSound("minecraft:music_disc.otherside", 3)
         sleep(1)
         speaker.playSound("minecraft:ambient.cave", 1)
@@ -80,7 +81,7 @@ end
 function waitForTouch()
     while true do
         local event, side, x, y = os.pullEvent("monitor_touch")
-        return x, math.floor(y) -- Ensure y is an integer
+        return x, math.floor(y)
     end
 end
 
@@ -101,17 +102,28 @@ function objectivesScreen()
     drawRunicBorder()
     drawCenteredText("== Current Objectives ==", 3, colors.purple)
     
-    for i, obj in ipairs(objectives) do
-        drawCenteredText(i .. ") " .. obj .. " (Click to Edit/Delete)", 5 + i * 2, colors.white)
+    local h = monitor.getSize()
+    local maxDisplay = h - 8 -- Allow room for the border and back button
+    for i = scrollIndex, math.min(scrollIndex + maxDisplay, #objectives) do
+        drawCenteredText(i .. ") " .. objectives[i], 5 + (i - scrollIndex) * 2, colors.white)
     end
-    drawCenteredText("Click below to add a new objective", 5 + #objectives * 2 + 2, colors.purple)
-    drawCenteredText("Click here to return", 5 + #objectives * 2 + 6, colors.purple)
+    
+    drawCenteredText("⬆ Scroll Up ⬆", h - 6, colors.lightGray)
+    drawCenteredText("⬇ Scroll Down ⬇", h - 4, colors.lightGray)
+    drawCenteredText("Click to edit or add", h - 2, colors.purple)
+    drawCenteredText("⬅ Back", h, colors.red)
     
     local x, y = waitForTouch()
-    if y >= 5 and y <= 5 + #objectives * 2 then
-        local index = math.floor((y - 5) / 2) + 1
-        editObjective(index)
-    elseif y >= 5 + #objectives * 2 + 2 and y <= 5 + #objectives * 2 + 3 then
+    if y >= 5 and y < h - 6 then
+        local index = scrollIndex + math.floor((y - 5) / 2)
+        if objectives[index] then editObjective(index) end
+    elseif y == h - 6 then
+        if scrollIndex > 1 then scrollIndex = scrollIndex - 1 end
+        objectivesScreen()
+    elseif y == h - 4 then
+        if scrollIndex + maxDisplay < #objectives then scrollIndex = scrollIndex + 1 end
+        objectivesScreen()
+    elseif y == h - 2 then
         addObjective()
     else
         mainMenu()
@@ -119,13 +131,9 @@ function objectivesScreen()
 end
 
 function editObjective(index)
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("Editing Objective: " .. objectives[index], 3, colors.purple)
-    drawCenteredText("Type new text or type DELETE to remove", 5, colors.white)
-    term.setCursorPos(1, 7)
-    term.setTextColor(colors.white)
-    term.write(": ")
+    term.setCursorPos(1, monitor.getSize() + 2)
+    term.clearLine()
+    term.write("Edit Objective: " .. objectives[index] .. " > ")
     local input = read()
     if input:lower() == "delete" then
         table.remove(objectives, index)
@@ -136,12 +144,9 @@ function editObjective(index)
 end
 
 function addObjective()
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("Enter a new objective:", 3, colors.purple)
-    term.setCursorPos(1, 5)
-    term.setTextColor(colors.white)
-    term.write(": ")
+    term.setCursorPos(1, monitor.getSize() + 2)
+    term.clearLine()
+    term.write("New Objective > ")
     local input = read()
     if input ~= "" then
         table.insert(objectives, input)
