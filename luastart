@@ -96,7 +96,7 @@ function loginScreen()
         clearScreen()
         drawRunicBorder()
         drawCenteredText("Welcome Home " .. username, 3, colors.purple)
-        if speaker then speaker.speak("Welcome Home Void") end
+        if speaker then speaker.playSound("minecraft:block.note_block.pling", 3) end
         sleep(2)
         mainMenu()
     end)
