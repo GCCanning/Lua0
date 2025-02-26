@@ -68,10 +68,14 @@ end
 -- Play background music
 function playMusic()
     if speaker then
-        sleep(0.5)
-        speaker.playSound("minecraft:music_disc.otherside", 3)
-        sleep(1)
-        speaker.playSound("minecraft:ambient.cave", 1)
+        while true do
+            speaker.playSound("minecraft:music_disc.otherside", 3)
+            sleep(30)
+            speaker.playSound("minecraft:music_disc.pigstep", 3)
+            sleep(30)
+            speaker.playSound("minecraft:ambient.cave", 1)
+            sleep(30)
+        end
     else
         print("No speaker detected!")
     end
@@ -87,14 +91,15 @@ end
 
 -- Login Screen
 function loginScreen()
-    playMusic()
-    animateBlackHole()
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("Welcome Home " .. username, 3, colors.purple)
-    if speaker then speaker.speak("Welcome Home Void") end
-    sleep(2)
-    mainMenu()
+    parallel.waitForAny(playMusic, function()
+        animateBlackHole()
+        clearScreen()
+        drawRunicBorder()
+        drawCenteredText("Welcome Home " .. username, 3, colors.purple)
+        if speaker then speaker.speak("Welcome Home Void") end
+        sleep(2)
+        mainMenu()
+    end)
 end
 
 -- Objectives Screen
@@ -135,7 +140,7 @@ end
 
 function editObjective(index)
     term.redirect(term.native())
-    term.setCursorPos(1, monitor.getSize() + 2)
+    term.setCursorPos(1, select(2, term.getSize()))
     term.clearLine()
     term.write("Edit Objective: " .. objectives[index] .. " > ")
     local input = read()
@@ -150,7 +155,7 @@ end
 
 function addObjective()
     term.redirect(term.native())
-    term.setCursorPos(1, monitor.getSize() + 2)
+    term.setCursorPos(1, select(2, term.getSize()))
     term.clearLine()
     term.write("New Objective > ")
     local input = read()
