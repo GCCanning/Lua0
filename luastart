@@ -1,0 +1,105 @@
+-- CC: Tweaks Advanced Computer Interface
+-- Features: Login Screen, Objectives List, Redstone Control, Power Monitoring
+
+local username = "TheNameOfTheVoid"
+local objectives = {"Build storage room", "Expand farm", "Automate smelter"}
+local redstoneControls = {"Door", "Lights", "Alarm"}
+local sides = {"left", "right", "back"} -- Redstone output sides
+local monitor = peripheral.find("monitor")
+local powerPeripheral = peripheral.find("energy_storage") -- Adjust based on mod used
+
+-- Utility functions
+function clearScreen()
+    term.setBackgroundColor(colors.black)
+    term.setTextColor(colors.white)
+    term.clear()
+    term.setCursorPos(1,1)
+end
+
+function drawCenteredText(text, y, color)
+    local w, h = term.getSize()
+    term.setTextColor(color)
+    term.setCursorPos((w - #text) // 2, y)
+    term.write(text)
+end
+
+function animateBlackHole()
+    for i = 1, 5 do
+        clearScreen()
+        drawCenteredText("O", 6, colors.gray)
+        sleep(0.1)
+        clearScreen()
+        drawCenteredText("0", 6, colors.purple)
+        sleep(0.1)
+    end
+end
+
+-- Login Screen
+function loginScreen()
+    animateBlackHole()
+    clearScreen()
+    drawCenteredText("Welcome Home " .. username, 3, colors.purple)
+    sleep(2)
+    mainMenu()
+end
+
+-- Main Menu
+function mainMenu()
+    clearScreen()
+    term.setTextColor(colors.purple)
+    print("1) Current Objectives")
+    print("2) Control Panel")
+    print("3) Power Status")
+    print("Select an option:")
+    local choice = read()
+    if choice == "1" then objectivesScreen() 
+    elseif choice == "2" then controlPanel() 
+    elseif choice == "3" then powerStatus() 
+    else mainMenu() end
+end
+
+-- Objectives Screen
+function objectivesScreen()
+    clearScreen()
+    term.setTextColor(colors.purple)
+    print("== Current Objectives ==")
+    for i, obj in ipairs(objectives) do print(i .. ") " .. obj) end
+    print("Enter new objective or type 'back' to return:")
+    local input = read()
+    if input ~= "back" then table.insert(objectives, input) end
+    mainMenu()
+end
+
+-- Control Panel
+function controlPanel()
+    clearScreen()
+    term.setTextColor(colors.purple)
+    print("== Control Panel ==")
+    for i, control in ipairs(redstoneControls) do
+        print(i .. ") " .. control .. " (Press to toggle)")
+    end
+    print("Select a control or type 'back':")
+    local input = read()
+    local index = tonumber(input)
+    if index and redstoneControls[index] then
+        redstone.setOutput(sides[index], not redstone.getOutput(sides[index]))
+    end
+    mainMenu()
+end
+
+-- Power Status
+function powerStatus()
+    clearScreen()
+    term.setTextColor(colors.purple)
+    if powerPeripheral then
+        print("Total Power: " .. powerPeripheral.getEnergyStored() .. " RF")
+    else
+        print("Power monitor not found.")
+    end
+    print("Press any key to return.")
+    os.pullEvent("key")
+    mainMenu()
+end
+
+-- Start program
+loginScreen()
