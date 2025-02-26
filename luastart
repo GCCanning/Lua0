@@ -151,5 +151,15 @@ function mainMenu()
     else mainMenu() end
 end
 
+-- Login Screen
+function loginScreen()
+    clearScreen()
+    drawRunicBorder()
+    drawCenteredText("== Login Screen ==", 3, colors.purple)
+    drawCenteredText("Press anywhere to continue", 6, colors.white)
+    waitForTouch()
+    mainMenu()
+end
+
 -- Start program
 loginScreen()
