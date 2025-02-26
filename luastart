@@ -19,7 +19,7 @@ end
 function drawCenteredText(text, y, color)
     local w, h = term.getSize()
     term.setTextColor(color)
-    term.setCursorPos((w - #text) // 2, y)
+    term.setCursorPos(math.floor((w - #text) / 2), y)
     term.write(text)
 end
 
