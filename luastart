@@ -17,14 +17,14 @@ local speaker = peripheral.find("speaker") -- Auto-detect speaker for background
 local scrollIndex = 1
 
 -- Utility Functions
-function addObjective(input)
+local function addObjective(input)
     if input ~= "" then
         table.insert(objectives, input)
     end
     objectivesScreen()
 end
 
-function editObjective(index, input)
+local function editObjective(index, input)
     if input:lower() == "delete" then
         table.remove(objectives, index)
     elseif input ~= "" then
@@ -34,7 +34,7 @@ function editObjective(index, input)
 end
 
 -- UI Elements
-function loginScreen()
+local function loginScreen()
     main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addLabel():setText("== Login Screen =="):setPosition("center", 3)
@@ -42,35 +42,37 @@ function loginScreen()
     frame:onClick(function() mainMenu() end)
 end
 
-function mainMenu()
+local function mainMenu()
     main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
+    frame:addLabel():setText("== Main Menu =="):setPosition("center", 3)
     frame:addButton():setText("Current Objectives"):setPosition("center", 6):onClick(objectivesScreen)
     frame:addButton():setText("Control Panel"):setPosition("center", 8):onClick(controlPanel)
     frame:addButton():setText("Power Status"):setPosition("center", 10):onClick(powerStatus)
-    frame:addButton():setText("Exit"):setPosition("center", 12):onClick(function() shell.exit() end)
+    frame:addButton():setText("Exit"):setPosition("center", 12):onClick(function() basalt.stop() end)
 end
 
-function objectivesScreen()
+local function objectivesScreen()
     main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
     frame:addLabel():setText("== Current Objectives =="):setPosition("center", 3)
     
     for i, obj in ipairs(objectives) do
-        frame:addButton():setText(i .. ") " .. obj):setPosition(5, 5 + i * 2):onClick(function()
-            local input = frame:addInput():setPosition(5, 5 + i * 2)
+        local btn = frame:addButton():setText(i .. ") " .. obj):setPosition(5, 5 + i * 2)
+        btn:onClick(function()
+            local input = frame:addInput():setSize(20, 1):setPosition(5, 5 + i * 2)
             input:onLoseFocus(function() editObjective(i, input:getValue()) end)
         end)
     end
     
     frame:addButton():setText("+ Add Objective"):setPosition("center", "parent.h - 2"):onClick(function()
-        local input = frame:addInput():setPosition("center", "parent.h - 4")
+        local input = frame:addInput():setSize(20, 1):setPosition("center", "parent.h - 4")
         input:onLoseFocus(function() addObjective(input:getValue()) end)
     end)
 end
 
-function controlPanel()
+local function controlPanel()
     main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
@@ -82,14 +84,14 @@ function controlPanel()
     end
 end
 
-function powerStatus()
+local function powerStatus()
     main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
     frame:addLabel():setText("== Power Status =="):setPosition("center", 3)
     if powerPeripheral then
         local energy = powerPeripheral.getEnergyStored()
-        frame:addLabel():setText("Energy Stored: " .. energy):setPosition("center", 6)
+        frame:addLabel():setText("Energy Stored: " .. tostring(energy)):setPosition("center", 6)
     else
         frame:addLabel():setText("No power monitoring available."):setPosition("center", 6)
     end
