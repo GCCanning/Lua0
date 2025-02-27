@@ -1,5 +1,11 @@
--- CC: Tweaks Advanced Computer Interface
+-- CC: Tweaks Advanced Computer Interface with Basalt UI
 -- Features: Login Screen, Objectives List (Editable via Terminal), Redstone Control, Power Monitoring, Background Music
+
+-- Install Basalt if not present
+shell.run("wget run https://basalt.madefor.cc/install.lua release latest.lua")
+
+local basalt = require("basalt")
+local main = basalt.createFrame()
 
 local username = "TheNameOfTheVoid"
 local objectives = {"Build storage room", "Expand farm", "Automate smelter"}
@@ -10,156 +16,85 @@ local powerPeripheral = peripheral.find("energy_storage") -- Adjust based on mod
 local speaker = peripheral.find("speaker") -- Auto-detect speaker for background music
 local scrollIndex = 1
 
--- Ensure output is redirected to the monitor
-if monitor then
-    term.redirect(monitor)
-    monitor.setTextScale(0.5)
-    monitor.setBackgroundColor(colors.black)
-    monitor.clear()
-else
-    print("Monitor not found! Displaying on terminal instead.")
-end
-
--- Utility functions
-function clearScreen()
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-    term.clear()
-    term.setCursorPos(1,1)
-end
-
-function drawHeaderWithBackButton(title)
-    term.setCursorPos(2, 3)
-    term.setTextColor(colors.red)
-    term.write("⬅ Back")
-    drawCenteredText(title, 3, colors.purple)
-end
-
-function drawCenteredText(text, y, color)
-    local w, h = term.getSize()
-    term.setTextColor(color)
-    term.setCursorPos(math.floor((w - #text) / 2), y)
-    term.write(text)
-end
-
-function drawRunicBorder()
-    local w, h = term.getSize()
-    local rune = "✦"
-    for x = 1, w do
-        term.setCursorPos(x, 1)
-        term.write(rune)
-        term.setCursorPos(x, h)
-        term.write(rune)
-    end
-    for y = 1, h do
-        term.setCursorPos(1, y)
-        term.write(rune)
-        term.setCursorPos(w, y)
-        term.write(rune)
-    end
-end
-
-function waitForTouch()
-    local event, side, x, y = os.pullEvent("monitor_touch")
-    return x, y
-end
-
--- Objectives Screen
-function objectivesScreen()
-    clearScreen()
-    drawRunicBorder()
-    drawHeaderWithBackButton("== Current Objectives ==")
-    
-    local h = term.getSize()
-    local maxDisplay = h - 8 -- Allow room for the border
-    for i = scrollIndex, math.min(scrollIndex + maxDisplay, #objectives) do
-        drawCenteredText(i .. ") " .. objectives[i], 5 + (i - scrollIndex) * 2, colors.white)
-    end
-    
-    drawCenteredText("⬆ Scroll Up ⬆", h - 6, colors.lightGray)
-    drawCenteredText("⬇ Scroll Down ⬇", h - 4, colors.lightGray)
-    drawCenteredText("Click to edit, add, or delete", h - 2, colors.purple)
-    
-    local x, y = waitForTouch()
-    if y == 3 and x <= 6 then
-        mainMenu()
-    elseif y >= 5 and y < h - 6 then
-        local index = scrollIndex + math.floor((y - 5) / 2)
-        if objectives[index] then editObjective(index) end
-    elseif y == h - 6 then
-        if scrollIndex > 1 then scrollIndex = scrollIndex - 1 end
-        objectivesScreen()
-    elseif y == h - 4 then
-        if scrollIndex + maxDisplay < #objectives then scrollIndex = scrollIndex + 1 end
-        objectivesScreen()
-    elseif y == h - 2 then
-        addObjective()
-    else
-        objectivesScreen()
-    end
-end
-
--- Edit and Add/Delete Objectives
-function editObjective(index)
-    term.redirect(term.native())
-    term.setCursorPos(1, select(2, term.getSize()))
-    term.clearLine()
-    term.write("Edit Objective: " .. objectives[index] .. " > ")
-    local input = read()
-    if input:lower() == "delete" then
-        print("Are you sure you want to delete this objective? (yes/no)")
-        local confirm = read()
-        if confirm:lower() == "yes" then
-            table.remove(objectives, index)
-        end
-    elseif input ~= "" then
-        objectives[index] = input
-    end
-    term.redirect(monitor)
-    objectivesScreen()
-end
-
-function addObjective()
-    term.redirect(term.native())
-    term.setCursorPos(1, select(2, term.getSize()))
-    term.clearLine()
-    term.write("New Objective > ")
-    local input = read()
+-- Utility Functions
+function addObjective(input)
     if input ~= "" then
         table.insert(objectives, input)
     end
-    term.redirect(monitor)
     objectivesScreen()
 end
 
--- Main Menu
-function mainMenu()
-    clearScreen()
-    drawRunicBorder()
-    drawHeaderWithBackButton("== Main Menu ==")
-    drawCenteredText("1) Current Objectives", 6, colors.white)
-    drawCenteredText("2) Control Panel", 8, colors.white)
-    drawCenteredText("3) Power Status", 10, colors.white)
-    drawCenteredText("Click an option:", 12, colors.purple)
-    
-    local x, y = waitForTouch()
-    if y == 3 and x <= 6 then
-        loginScreen()
-    elseif y >= 5 and y <= 7 then objectivesScreen() 
-    elseif y >= 7 and y <= 9 then controlPanel() 
-    elseif y >= 9 and y <= 11 then powerStatus() 
-    else mainMenu() end
+function editObjective(index, input)
+    if input:lower() == "delete" then
+        table.remove(objectives, index)
+    elseif input ~= "" then
+        objectives[index] = input
+    end
+    objectivesScreen()
 end
 
--- Login Screen
+-- UI Elements
 function loginScreen()
-    clearScreen()
-    drawRunicBorder()
-    drawCenteredText("== Login Screen ==", 3, colors.purple)
-    drawCenteredText("Press anywhere to continue", 6, colors.white)
-    waitForTouch()
-    mainMenu()
+    main:clear()
+    local frame = main:addFrame():setSize("parent.w", "parent.h")
+    frame:addLabel():setText("== Login Screen =="):setPosition("center", 3)
+    frame:addLabel():setText("Press anywhere to continue"):setPosition("center", 6)
+    frame:onClick(function() mainMenu() end)
+end
+
+function mainMenu()
+    main:clear()
+    local frame = main:addFrame():setSize("parent.w", "parent.h")
+    frame:addButton():setText("Current Objectives"):setPosition("center", 6):onClick(objectivesScreen)
+    frame:addButton():setText("Control Panel"):setPosition("center", 8):onClick(controlPanel)
+    frame:addButton():setText("Power Status"):setPosition("center", 10):onClick(powerStatus)
+    frame:addButton():setText("Exit"):setPosition("center", 12):onClick(function() shell.exit() end)
+end
+
+function objectivesScreen()
+    main:clear()
+    local frame = main:addFrame():setSize("parent.w", "parent.h")
+    frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
+    frame:addLabel():setText("== Current Objectives =="):setPosition("center", 3)
+    
+    for i, obj in ipairs(objectives) do
+        frame:addButton():setText(i .. ") " .. obj):setPosition(5, 5 + i * 2):onClick(function()
+            local input = frame:addInput():setPosition(5, 5 + i * 2)
+            input:onLoseFocus(function() editObjective(i, input:getValue()) end)
+        end)
+    end
+    
+    frame:addButton():setText("+ Add Objective"):setPosition("center", "parent.h - 2"):onClick(function()
+        local input = frame:addInput():setPosition("center", "parent.h - 4")
+        input:onLoseFocus(function() addObjective(input:getValue()) end)
+    end)
+end
+
+function controlPanel()
+    main:clear()
+    local frame = main:addFrame():setSize("parent.w", "parent.h")
+    frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
+    frame:addLabel():setText("== Control Panel =="):setPosition("center", 3)
+    for i, device in ipairs(redstoneControls) do
+        frame:addButton():setText(device):setPosition(5, 5 + i * 2):onClick(function()
+            redstone.setOutput(sides[i], not redstone.getOutput(sides[i]))
+        end)
+    end
+end
+
+function powerStatus()
+    main:clear()
+    local frame = main:addFrame():setSize("parent.w", "parent.h")
+    frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
+    frame:addLabel():setText("== Power Status =="):setPosition("center", 3)
+    if powerPeripheral then
+        local energy = powerPeripheral.getEnergyStored()
+        frame:addLabel():setText("Energy Stored: " .. energy):setPosition("center", 6)
+    else
+        frame:addLabel():setText("No power monitoring available."):setPosition("center", 6)
+    end
 end
 
 -- Start program
 loginScreen()
+basalt.autoUpdate()
