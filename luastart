@@ -5,6 +5,10 @@
 shell.run("wget run https://basalt.madefor.cc/install.lua release latest.lua")
 
 local basalt = require("basalt")
+if not basalt then
+    error("Basalt failed to load! Make sure it is installed.")
+end
+
 local main = basalt.createFrame()
 
 local username = "TheNameOfTheVoid"
@@ -89,7 +93,7 @@ local function powerStatus()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
     frame:addLabel():setText("== Power Status =="):setPosition("center", 3)
-    if powerPeripheral then
+    if powerPeripheral and powerPeripheral.getEnergyStored then
         local energy = powerPeripheral.getEnergyStored()
         frame:addLabel():setText("Energy Stored: " .. tostring(energy)):setPosition("center", 6)
     else
@@ -99,4 +103,4 @@ end
 
 -- Start program
 loginScreen()
-basalt.autoUpdate()
+basalt.debug()
