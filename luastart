@@ -35,7 +35,7 @@ end
 
 -- UI Elements
 function loginScreen()
-    main:clear()
+    main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addLabel():setText("== Login Screen =="):setPosition("center", 3)
     frame:addLabel():setText("Press anywhere to continue"):setPosition("center", 6)
@@ -43,7 +43,7 @@ function loginScreen()
 end
 
 function mainMenu()
-    main:clear()
+    main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addButton():setText("Current Objectives"):setPosition("center", 6):onClick(objectivesScreen)
     frame:addButton():setText("Control Panel"):setPosition("center", 8):onClick(controlPanel)
@@ -52,7 +52,7 @@ function mainMenu()
 end
 
 function objectivesScreen()
-    main:clear()
+    main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
     frame:addLabel():setText("== Current Objectives =="):setPosition("center", 3)
@@ -71,7 +71,7 @@ function objectivesScreen()
 end
 
 function controlPanel()
-    main:clear()
+    main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
     frame:addLabel():setText("== Control Panel =="):setPosition("center", 3)
@@ -83,7 +83,7 @@ function controlPanel()
 end
 
 function powerStatus()
-    main:clear()
+    main:removeChildren()
     local frame = main:addFrame():setSize("parent.w", "parent.h")
     frame:addButton():setText("⬅ Back"):setPosition(2, 3):onClick(mainMenu)
     frame:addLabel():setText("== Power Status =="):setPosition("center", 3)
